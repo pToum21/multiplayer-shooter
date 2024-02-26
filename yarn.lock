@@ -842,6 +842,11 @@ picocolors@^1.0.0:
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
   integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
 
+playroomkit@^0.0.68:
+  version "0.0.68"
+  resolved "https://registry.yarnpkg.com/playroomkit/-/playroomkit-0.0.68.tgz#4ebc67a9a3058d602be65c921e8b9dd800c01c94"
+  integrity sha512-n5KP701pmAlnpLVWmxEOSkEFWWoYYgPwd2L1Ti1UYQbi6h9mM39RLdZ+QbTHEYxjq7/dK/BcmkUs70DzpOgnQQ==
+
 postcss@^8.4.21:
   version "8.4.21"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.21.tgz#c639b719a57efc3187b13a1d765675485f4134f4"
