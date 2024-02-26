@@ -36,7 +36,7 @@ export const CharacterContoroller = (
 
     return (
         <group ref={group} {...props}>
-            <RigidBody ref={rigidbody} colliders={false}>
+            <RigidBody ref={rigidbody} colliders={false} linearDamping={12} lockRotations>
                 <group ref={character}>
                     <CharacterSoldier
                         color={state.state.profile?.color}
