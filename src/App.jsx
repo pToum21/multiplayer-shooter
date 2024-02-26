@@ -14,7 +14,7 @@ function App() {
 
       <Suspense>
 
-        <Physics debug>
+        <Physics>
           <Experience />
         </Physics>
 
