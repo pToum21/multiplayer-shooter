@@ -2,7 +2,38 @@
 
 import { Environment, OrbitControls } from "@react-three/drei";
 import { Map } from "./Map";
+import { useEffect, useState } from "react";
+import { Joystick, insertCoin, onPlayerJoin } from "playroomkit";
+
+
 export const Experience = () => {
+
+  const [players, setPlayers] = useState([]);
+
+  const start = async () => {
+    await insertCoin();
+  }
+
+  useEffect(() => {
+    start();
+
+    onPlayerJoin((state) => {
+      const joystick = new Joystick(state, {
+        type: 'angular',
+        buttons: [{ id: 'fire', label: 'Fire' }]
+      })
+      const newPlayer = { state, joystick }
+      state.setState("health", 100);
+      state.setState("death", 0);
+      state.setState("kills", 0);
+      setPlayers((players) => [...players, newPlayer])
+      state.onQuit(() => {
+        setPlayers((players) => players.filter((p) => p.state.id !== state.id))
+      })
+
+    })
+  }, [])
+
   return (
     <>
       <directionalLight
