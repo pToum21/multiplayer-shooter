@@ -8,7 +8,7 @@ export const CharacterContoroller = (
     const character = useRef();
     const [animation, setAnimation] = useState('Idle');
     return (
-        <group ref={group}>
+        <group ref={group} {...props}>
             <group ref={character}>
                 <CharacterSoldier
                     color={state.state.profile?.color}
