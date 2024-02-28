@@ -7,16 +7,20 @@ import { CameraControls } from "@react-three/drei";
 
 
 const MOVEMENT_SPEED = 200
+const FIRE_RATE = 380;
 
 
 export const CharacterContoroller = (
-    { state, joystick, userPlayer, ...props }
+    { state, joystick, userPlayer, onFire, ...props }
 ) => {
+
     const group = useRef();
     const character = useRef();
-    const [animation, setAnimation] = useState('Idle');
     const rigidbody = useRef();
+    const lastShoot = useRef(0);
     const controls = useRef();
+    const [animation, setAnimation] = useState('Idle');
+
 
     useFrame((_, delta) => {
 
@@ -70,7 +74,8 @@ export const CharacterContoroller = (
                         position: vec3(rigidbody.current.translation()),
                         angle,
                         player: state.id
-                    }
+                    };
+                    onFire(newBullet);
                 }
             }
         }
