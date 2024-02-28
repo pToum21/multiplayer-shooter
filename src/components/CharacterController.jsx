@@ -59,6 +59,22 @@ export const CharacterContoroller = (
                 rigidbody.current.setTranslation(pos)
             }
         }
+
+        if (joystick.isPressed("fire")) {
+            setAnimation("Idle_Shoot");
+            if (isHost()) {
+                if (Date.now() - lastShoot.current > FIRE_RATE) {
+                    lastShoot.current = Date.now();
+                    const newBullet = {
+                        id: state.id + "-" + +new Date(),
+                        position: vec3(rigidbody.current.translation()),
+                        angle,
+                        player: state.id
+                    }
+                }
+            }
+        }
+
     })
 
 
