@@ -1,7 +1,7 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CharacterSoldier } from "./CharacterSoldier";
 import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { isHost } from "playroomkit";
 import { CameraControls } from "@react-three/drei";
 
@@ -16,7 +16,7 @@ export const WEAPON_OFFSET = {
 }
 
 export const CharacterContoroller = (
-    { state, joystick, userPlayer, onFire, ...props }
+    { state, joystick, userPlayer, onFire, onKilled, ...props }
 ) => {
 
     const group = useRef();
@@ -25,6 +25,29 @@ export const CharacterContoroller = (
     const lastShoot = useRef(0);
     const controls = useRef();
     const [animation, setAnimation] = useState('Idle');
+
+    const scene = useThree((state) => state.scene)
+
+    const spawnRandomly = () => {
+        const spawns = []
+        for (let i = 0; i < 1000; i++) {
+            const spawn = scene.getObjectByName(`spawn_${i}`)
+            if (spawn) {
+                spawns.push(spawn);
+            } else {
+                break;
+            }
+        }
+        const spawnPos = spawns[Math.floor(Math.random() * spawns.length)].position;
+        rigidbody.current.setTranslation(spawnPos)
+    }
+
+
+    useEffect(() => {
+if (isHost()) {
+    spawnRandomly()
+}
+    }, [])
 
 
     useFrame((_, delta) => {
@@ -99,6 +122,31 @@ export const CharacterContoroller = (
                 linearDamping={12}
                 lockRotations
                 type={isHost() ? "dynamic" : "kinematicPosition"}
+                onIntersectionEnter={({ other }) => {
+                    if (
+                        isHost() &&
+                        other.rigidBody.userData.type === 'bullet' &&
+                        state.state.health > 0
+                    ) {
+                        const newHealth =
+                            state.state.health - other.rigidBody.userData.damage;
+                        if (newHealth <= 0) {
+                            state.setState("deaths", state.state.deaths + 1);
+                            state.setState('dead', true)
+                            state.setState('health', 0)
+                            rigidbody.current.setEnabled(false)
+                            setTimeout(() => {
+                                spawnRandomly();
+                                rigidbody.current.setEnabled(true)
+                                state.setState('health', 100)
+                                state.setState('dead', false)
+                            }, 2000)
+                            onKilled(state.id, other.rigidBody.userData.player)
+                        } else {
+                            state.setState("health", newHealth)
+                        }
+                    }
+                }}
             >
                 <group ref={character}>
                     <CharacterSoldier
