@@ -5,6 +5,7 @@ import { Map } from "./Map";
 import { useEffect, useState } from "react";
 import { Joystick, insertCoin, myPlayer, onPlayerJoin } from "playroomkit";
 import { CharacterContoroller } from "./CharacterController";
+import { Bullet } from "./Bullet";
 
 
 export const Experience = () => {
