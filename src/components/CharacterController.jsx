@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState  } from "react"
 import { CharacterSoldier } from "./CharacterSoldier";
-import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
+import { CapsuleCollider, RigidBody, vec3} from "@react-three/rapier";
 import { useFrame, useThree } from "@react-three/fiber";
-import { isHost } from "playroomkit";
-import { CameraControls } from "@react-three/drei";
+import { isHost,  } from "playroomkit";
+import { CameraControls, Billboard, Text, } from "@react-three/drei";
 
 
 const MOVEMENT_SPEED = 200
@@ -65,6 +65,11 @@ export const CharacterContoroller = (
                 playerWorldPos.z,
                 true
             );
+        }
+
+        if(state.state.dead) {
+            setAnimation('Death');
+            return;
         }
 
         const angle = joystick.angle();
@@ -148,6 +153,7 @@ export const CharacterContoroller = (
                     }
                 }}
             >
+                <PlayerInfo state={state.state} />
                 <group ref={character}>
                     <CharacterSoldier
                         color={state.state.profile?.color}

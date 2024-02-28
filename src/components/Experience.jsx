@@ -50,6 +50,11 @@ export const Experience = () => {
     })
   }, [])
 
+  const onKilled = (_victim, killer) => {
+    const killerState = players.find((p) => p.state.id === killer).state;
+    killerState.setState("kills", killerState.state.kills + 1)
+  }
+
   return (
     <>
       <directionalLight
@@ -76,6 +81,7 @@ export const Experience = () => {
             joystick={joystick}
             userPlayer={state.id === myPlayer()?.id}
             onFire={onFire}
+            onKilled={onKilled}
           />
         )
 
