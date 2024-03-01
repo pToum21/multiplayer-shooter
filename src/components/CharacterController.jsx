@@ -143,6 +143,7 @@ export const CharacterController = ({
         }
     }, [character.current]);
 
+    // actual return of elements for the character
     return (
         <group {...props} ref={group}>
             {userPlayer && <CameraControls ref={controls} />}
@@ -217,6 +218,7 @@ export const CharacterController = ({
     );
 };
 
+// players name and info
 const PlayerInfo = ({ state }) => {
     const health = state.health;
     const name = state.profile.name;
@@ -238,6 +240,7 @@ const PlayerInfo = ({ state }) => {
     );
 };
 
+// dotted crosshair to show where the player is aimed
 const Crosshair = (props) => {
     return (
         <group {...props}>
