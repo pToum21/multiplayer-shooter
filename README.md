@@ -22,11 +22,8 @@ This project uses Tailwind and Yarn
 ## Usage - 💎
 Please run yarn install and yarn dev.
 
-## Preview Video - 📼
-
-
 ## Preview Photo - 📸
-![blicky preview]()
+![blicky preview](https://github.com/pToum21/multiplayer-shooter/assets/138056441/220d978f-d3af-491b-9649-139bb870847f)
 
 ## Deployed Application - 📲
 https://blicky.netlify.app/
