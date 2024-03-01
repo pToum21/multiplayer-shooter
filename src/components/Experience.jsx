@@ -9,7 +9,7 @@ import {
 } from "playroomkit";
 import { useEffect, useState } from "react";
 import { Bullet } from "./Bullet";
-import { BulletHit } from "./BulletHit";
+import { BulletHit } from "./Bullethit";
 import { CharacterController } from "./CharacterController";
 import { Map } from "./Map";
 
