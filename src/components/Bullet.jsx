@@ -4,8 +4,10 @@ import { useEffect, useRef } from "react";
 import { MeshBasicMaterial } from "three";
 import { WEAPON_OFFSET } from "./CharacterController";
 
+// speed of bullet
 const BULLET_SPEED = 20;
 
+// style of bullets
 const bulletMaterial = new MeshBasicMaterial({
     color: "hotpink",
     toneMapped: false,
@@ -13,6 +15,7 @@ const bulletMaterial = new MeshBasicMaterial({
 
 bulletMaterial.color.multiplyScalar(42);
 
+// shooting mechinc and physics of the bullet
 export const Bullet = ({ player, angle, position, onHit }) => {
     const rigidbody = useRef();
 
@@ -28,6 +31,7 @@ export const Bullet = ({ player, angle, position, onHit }) => {
         rigidbody.current.setLinvel(velocity, true);
     }, []);
 
+    // bullet jsx return
     return (
         <group position={[position.x, position.y, position.z]} rotation-y={angle}>
             <group
