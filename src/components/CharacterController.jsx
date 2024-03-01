@@ -1,37 +1,38 @@
-import { useEffect, useRef, useState  } from "react"
-import { CharacterSoldier } from "./CharacterSoldier";
-import { CapsuleCollider, RigidBody, vec3} from "@react-three/rapier";
+import { Billboard, CameraControls, Text } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
-import { isHost,  } from "playroomkit";
-import { CameraControls, Billboard, Text, } from "@react-three/drei";
-
-
-const MOVEMENT_SPEED = 200
+import { CapsuleCollider, RigidBody, vec3 } from "@react-three/rapier";
+import { isHost } from "playroomkit";
+import { useEffect, useRef, useState } from "react";
+import { CharacterSoldier } from "./CharacterSoldier";
+const MOVEMENT_SPEED = 202;
 const FIRE_RATE = 380;
-
 export const WEAPON_OFFSET = {
     x: -0.2,
     y: 1.4,
-    z: 0.8
-}
+    z: 0.8,
+};
 
-export const CharacterContoroller = (
-    { state, joystick, userPlayer, onFire, onKilled, ...props }
-) => {
-
+export const CharacterController = ({
+    state,
+    joystick,
+    userPlayer,
+    onKilled,
+    onFire,
+    downgradedPerformance,
+    ...props
+}) => {
     const group = useRef();
     const character = useRef();
     const rigidbody = useRef();
+    const [animation, setAnimation] = useState("Idle");
+    const [weapon, setWeapon] = useState("AK");
     const lastShoot = useRef(0);
-    const controls = useRef();
-    const [animation, setAnimation] = useState('Idle');
 
-    const scene = useThree((state) => state.scene)
-
+    const scene = useThree((state) => state.scene);
     const spawnRandomly = () => {
-        const spawns = []
+        const spawns = [];
         for (let i = 0; i < 1000; i++) {
-            const spawn = scene.getObjectByName(`spawn_${i}`)
+            const spawn = scene.getObjectByName(`spawn_${i}`);
             if (spawn) {
                 spawns.push(spawn);
             } else {
@@ -39,19 +40,33 @@ export const CharacterContoroller = (
             }
         }
         const spawnPos = spawns[Math.floor(Math.random() * spawns.length)].position;
-        rigidbody.current.setTranslation(spawnPos)
-    }
-
+        rigidbody.current.setTranslation(spawnPos);
+    };
 
     useEffect(() => {
         if (isHost()) {
-            spawnRandomly()
+            spawnRandomly();
         }
-    }, [])
+    }, []);
 
+    useEffect(() => {
+        if (state.state.dead) {
+            const audio = new Audio("/audios/dead.mp3");
+            audio.volume = 0.5;
+            audio.play();
+        }
+    }, [state.state.dead]);
+
+    useEffect(() => {
+        if (state.state.health < 100) {
+            const audio = new Audio("/audios/hurt.mp3");
+            audio.volume = 0.4;
+            audio.play();
+        }
+    }, [state.state.health]);
 
     useFrame((_, delta) => {
-
+        // CAMERA FOLLOW
         if (controls.current) {
             const cameraDistanceY = window.innerWidth < 1024 ? 16 : 20;
             const cameraDistanceZ = window.innerWidth < 1024 ? 12 : 16;
@@ -67,16 +82,18 @@ export const CharacterContoroller = (
             );
         }
 
-        if(state.state.dead) {
-            setAnimation('Death');
+        if (state.state.dead) {
+            setAnimation("Death");
             return;
         }
 
+        // Update player position based on joystick state
         const angle = joystick.angle();
         if (joystick.isJoystickPressed() && angle) {
-            setAnimation('Run');
+            setAnimation("Run");
             character.current.rotation.y = angle;
 
+            // move character in its own direction
             const impulse = {
                 x: Math.sin(angle) * MOVEMENT_SPEED * delta,
                 y: 0,
@@ -85,20 +102,15 @@ export const CharacterContoroller = (
 
             rigidbody.current.applyImpulse(impulse, true);
         } else {
-            setAnimation('Idle');
+            setAnimation("Idle");
         }
 
-        if (isHost()) {
-            state.setState('pos', rigidbody.current.translation())
-        } else {
-            const pos = state.getState('pos');
-            if (pos) {
-                rigidbody.current.setTranslation(pos)
-            }
-        }
-
+        // Check if fire button is pressed
         if (joystick.isPressed("fire")) {
-            setAnimation("Idle_Shoot");
+            // fire
+            setAnimation(
+                joystick.isJoystickPressed() && angle ? "Run_Shoot" : "Idle_Shoot"
+            );
             if (isHost()) {
                 if (Date.now() - lastShoot.current > FIRE_RATE) {
                     lastShoot.current = Date.now();
@@ -106,21 +118,34 @@ export const CharacterContoroller = (
                         id: state.id + "-" + +new Date(),
                         position: vec3(rigidbody.current.translation()),
                         angle,
-                        player: state.id
+                        player: state.id,
                     };
                     onFire(newBullet);
                 }
             }
         }
 
-    })
+        if (isHost()) {
+            state.setState("pos", rigidbody.current.translation());
+        } else {
+            const pos = state.getState("pos");
+            if (pos) {
+                rigidbody.current.setTranslation(pos);
+            }
+        }
+    });
+    const controls = useRef();
+    const directionalLight = useRef();
 
+    useEffect(() => {
+        if (character.current && userPlayer) {
+            directionalLight.current.target = character.current;
+        }
+    }, [character.current]);
 
     return (
-        <group ref={group} {...props}>
-            {
-                userPlayer && (<CameraControls ref={controls} />)
-            }
+        <group {...props} ref={group}>
+            {userPlayer && <CameraControls ref={controls} />}
             <RigidBody
                 ref={rigidbody}
                 colliders={false}
@@ -130,25 +155,25 @@ export const CharacterContoroller = (
                 onIntersectionEnter={({ other }) => {
                     if (
                         isHost() &&
-                        other.rigidBody.userData.type === 'bullet' &&
+                        other.rigidBody.userData.type === "bullet" &&
                         state.state.health > 0
                     ) {
                         const newHealth =
                             state.state.health - other.rigidBody.userData.damage;
                         if (newHealth <= 0) {
                             state.setState("deaths", state.state.deaths + 1);
-                            state.setState('dead', true)
-                            state.setState('health', 0)
-                            rigidbody.current.setEnabled(false)
+                            state.setState("dead", true);
+                            state.setState("health", 0);
+                            rigidbody.current.setEnabled(false);
                             setTimeout(() => {
                                 spawnRandomly();
-                                rigidbody.current.setEnabled(true)
-                                state.setState('health', 100)
-                                state.setState('dead', false)
-                            }, 2000)
-                            onKilled(state.id, other.rigidBody.userData.player)
+                                rigidbody.current.setEnabled(true);
+                                state.setState("health", 100);
+                                state.setState("dead", false);
+                            }, 2000);
+                            onKilled(state.id, other.rigidBody.userData.player);
                         } else {
-                            state.setState("health", newHealth)
+                            state.setState("health", newHealth);
                         }
                     }
                 }}
@@ -158,16 +183,39 @@ export const CharacterContoroller = (
                     <CharacterSoldier
                         color={state.state.profile?.color}
                         animation={animation}
+                        weapon={weapon}
                     />
-                    <Crosshair position={[WEAPON_OFFSET.x, WEAPON_OFFSET.z, WEAPON_OFFSET.y]} />
+                    {userPlayer && (
+                        <Crosshair
+                            position={[WEAPON_OFFSET.x, WEAPON_OFFSET.y, WEAPON_OFFSET.z]}
+                        />
+                    )}
                 </group>
-                {userPlayer && <CapsuleCollider args={[0.7, 0.6]} position={[0, 1.28, 0]} />}
+                {userPlayer && (
+                    // Finally I moved the light to follow the player
+                    // This way we won't need to calculate ALL the shadows but only the ones
+                    // that are in the camera view
+                    <directionalLight
+                        ref={directionalLight}
+                        position={[25, 18, -25]}
+                        intensity={0.3}
+                        castShadow={!downgradedPerformance} // Disable shadows on low-end devices
+                        shadow-camera-near={0}
+                        shadow-camera-far={100}
+                        shadow-camera-left={-20}
+                        shadow-camera-right={20}
+                        shadow-camera-top={20}
+                        shadow-camera-bottom={-20}
+                        shadow-mapSize-width={2048}
+                        shadow-mapSize-height={2048}
+                        shadow-bias={-0.0001}
+                    />
+                )}
+                <CapsuleCollider args={[0.7, 0.6]} position={[0, 1.28, 0]} />
             </RigidBody>
         </group>
-    )
-}
-
-
+    );
+};
 
 const PlayerInfo = ({ state }) => {
     const health = state.health;
@@ -189,8 +237,6 @@ const PlayerInfo = ({ state }) => {
         </Billboard>
     );
 };
-
-
 
 const Crosshair = (props) => {
     return (
