@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei"
 import { RigidBody } from "@react-three/rapier";
 import { useEffect } from "react";
 
+// actaul game map
 export const Map = () => {
     const map = useGLTF('models/map.glb')
 

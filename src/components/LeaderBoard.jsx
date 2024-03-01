@@ -1,6 +1,7 @@
 import { usePlayersList } from "playroomkit";
 
 export const Leaderboard = () => {
+    // all players
     const players = usePlayersList(true);
     return (
         <>
