@@ -7,6 +7,7 @@ import { Color, MathUtils, Vector3 } from "three";
 const bulletHitcolor = new Color("red");
 bulletHitcolor.multiplyScalar(12);
 
+// bullet impact animation scale
 const AnimatedBox = ({ scale, target, speed }) => {
     const ref = useRef();
     useFrame((_, delta) => {
@@ -21,6 +22,7 @@ const AnimatedBox = ({ scale, target, speed }) => {
     return <Instance ref={ref} scale={scale} position={[0, 0, 0]} />;
 };
 
+// speed and play of animation
 export const BulletHit = ({ nb = 100, position, onEnded }) => {
     const boxes = useMemo(
         () =>
@@ -44,6 +46,7 @@ export const BulletHit = ({ nb = 100, position, onEnded }) => {
         }, 500);
     }, []);
 
+    // jsx return
     return (
         <group position={[position.x, position.y, position.z]}>
             <Instances>
