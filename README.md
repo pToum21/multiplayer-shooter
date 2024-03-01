@@ -26,10 +26,10 @@ Please run yarn install and yarn dev.
 
 
 ## Preview Photo - 📸
-![AnyYes preview]()
+![blicky preview]()
 
 ## Deployed Application - 📲
-
+https://blicky.netlify.app/
 
 ## Questions - ❓
 Feel Free to contact me at:
